@@ -1,23 +1,51 @@
 {
   "name": "dir-tidy",
-  "version": "0.0.2",
+  "version": "0.0.1",
+  "description": "A simple CLI tool to organize files in a directory into categorized subfolders based on file types.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsup"
+    "build": "tsup",
+    "start": "node ./dist/index.js",
+    "dev": "ts-node ./src/index.ts",
+    "lint": "eslint . --ext .ts",
+    "test": "jest"
   },
-  "keywords": [],
-  "author": "bossadizenith",
-  "license": "ISC",
-  "description": "",
   "bin": {
     "dir-tidy": "./dist/index.js"
+  },
+  "keywords": [
+    "directory-organizer",
+    "file-management",
+    "cli-tool",
+    "file-organization",
+    "file-sorter",
+    "nodejs"
+  ],
+  "author": {
+    "name": "bossadizenith",
+    "email": "your-email@example.com",
+    "url": "https://github.com/code-env"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/code-env/tidyup.git"
+  },
+  "bugs": {
+    "url": "https://github.com/code-env/tidyup/issues"
+  },
+  "homepage": "https://github.com/code-env/tidyup#readme",
+  "license": "ISC",
+  "engines": {
+    "node": ">=16.0.0"
   },
   "devDependencies": {
     "tsup": "^8.3.5",
     "@types/node": "^22.10.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "eslint": "^8.54.0",
+    "jest": "^29.7.0"
   }
 }
