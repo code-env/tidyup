@@ -11,6 +11,7 @@ const readdir = (0, util_1.promisify)(fs_1.default.readdir);
 const mkdir = (0, util_1.promisify)(fs_1.default.mkdir);
 const rename = (0, util_1.promisify)(fs_1.default.rename);
 const stat = (0, util_1.promisify)(fs_1.default.stat);
+// Define mappings for file types to folder names
 const FILE_TYPE_MAP = {
     ".png": "images-png",
     ".jpg": "images-jpg",
@@ -19,6 +20,11 @@ const FILE_TYPE_MAP = {
     ".avi": "videos-avi",
     ".pdf": "documents-pdf",
 };
+/**
+ * Get all file types present in a directory.
+ * @param dirPath - The path to the directory.
+ * @returns A record where keys are file extensions and values are file paths.
+ */
 async function getFileTypes(dirPath) {
     const files = await readdir(dirPath);
     const fileTypes = {};
@@ -36,21 +42,25 @@ async function getFileTypes(dirPath) {
     return fileTypes;
 }
 /**
- * Organize files into folders based on their extensions, handling existing folders and naming conflicts.
+ * Organize files into folders based on their extensions and provide detailed output.
  * @param dirPath - The directory path to organize.
  */
 async function organizeFiles(dirPath) {
     const fileTypes = await getFileTypes(dirPath);
+    const summary = [];
     for (const [ext, filePaths] of Object.entries(fileTypes)) {
         const folderName = FILE_TYPE_MAP[ext] || `others-${ext.replace(".", "")}`;
         const folderPath = path_1.default.join(dirPath, folderName);
+        let folderCreated = false;
         if (!fs_1.default.existsSync(folderPath)) {
             await mkdir(folderPath);
+            folderCreated = true;
         }
+        let filesAdded = 0;
         for (const filePath of filePaths) {
             const fileName = path_1.default.basename(filePath);
             let newFilePath = path_1.default.join(folderPath, fileName);
-            // Check if the file already exists and resolve conflicts
+            // Check if file already exists and resolve conflicts
             if (fs_1.default.existsSync(newFilePath)) {
                 const fileBase = path_1.default.parse(fileName).name;
                 const fileExt = path_1.default.extname(fileName);
@@ -62,10 +72,21 @@ async function organizeFiles(dirPath) {
                 }
             }
             await rename(filePath, newFilePath);
+            filesAdded++;
         }
+        summary.push({ folder: folderName, created: folderCreated, filesAdded });
     }
-    console.log(`Files in '${dirPath}' have been organized successfully.`);
+    // Print summary
+    console.log(`Organization Summary for '${dirPath}':`);
+    for (const { folder, created, filesAdded } of summary) {
+        console.log(`- Folder: ${folder}`);
+        console.log(`  - ${created ? "Created" : "Already existed"}`);
+        console.log(`  - Files added: ${filesAdded}`);
+    }
 }
+/**
+ * CLI Entry Point
+ */
 (async () => {
     const dirPath = process.argv[2];
     if (!dirPath) {
