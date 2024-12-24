@@ -1,4 +1,4 @@
-#!/usr/bin/env ts-node
+#!/usr/bin/env node
 import fs from "fs";
 import path from "path";
 import { promisify } from "util";

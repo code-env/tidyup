@@ -1,20 +1,21 @@
 {
-  "name": "tidyup",
-  "version": "1.0.2",
-  "main": "index.js",
+  "name": "dir-tidy",
+  "version": "0.0.1",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
-    "start": "node ./dist/src/index.js",
-    "dev": "ts-node ./src/index.ts"
-  },
-  "bin": {
-    "tidyup": "./dist/src/index.js"
+    "build": "tsup"
   },
   "keywords": [],
-  "author": "",
+  "author": "bossadizenith",
   "license": "ISC",
   "description": "",
+  "bin": {
+    "dir-tidy": "./dist/index.js"
+  },
   "devDependencies": {
+    "tsup": "^8.3.5",
     "@types/node": "^22.10.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2"
