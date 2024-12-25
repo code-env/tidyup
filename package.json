@@ -1,6 +1,6 @@
 {
   "name": "dir-tidy",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A simple CLI tool to organize files in a directory into categorized subfolders based on file types.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
