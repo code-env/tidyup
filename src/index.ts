@@ -2,21 +2,15 @@
 import fs from "fs";
 import path from "path";
 import { promisify } from "util";
+import { Command } from "commander";
+import packageJson from "../package.json";
+
+const program = new Command();
 
 const readdir = promisify(fs.readdir);
 const mkdir = promisify(fs.mkdir);
 const rename = promisify(fs.rename);
 const stat = promisify(fs.stat);
-
-// Define mappings for file types to folder names
-const FILE_TYPE_MAP: Record<string, string> = {
-  ".png": "images-png",
-  ".jpg": "images-jpg",
-  ".jpeg": "images-jpeg",
-  ".mp4": "videos-mp4",
-  ".avi": "videos-avi",
-  ".pdf": "documents-pdf",
-};
 
 /**
  * Get all file types present in a directory.
@@ -46,16 +40,51 @@ async function getFileTypes(
 }
 
 /**
- * Organize files into folders based on their extensions and provide detailed output.
- * @param dirPath - The directory path to organize.
+ * Get all file name groups based on starting names.
+ * @param dirPath - The path to the directory.
+ * @returns A record where keys are base names and values are file paths.
  */
-async function organizeFiles(dirPath: string): Promise<void> {
-  const fileTypes = await getFileTypes(dirPath);
+async function getFileNameGroups(
+  dirPath: string
+): Promise<Record<string, string[]>> {
+  const files = await readdir(dirPath);
+  const nameGroups: Record<string, string[]> = {};
+
+  for (const file of files) {
+    const filePath = path.join(dirPath, file);
+    const fileStat = await stat(filePath);
+
+    if (fileStat.isFile()) {
+      const baseName = path.parse(file).name.split("-")[0]; // Group by prefix before "-"
+      if (!nameGroups[baseName]) {
+        nameGroups[baseName] = [];
+      }
+      nameGroups[baseName].push(filePath);
+    }
+  }
+
+  return nameGroups;
+}
+
+/**
+ * Organize files into folders and provide detailed output.
+ * @param dirPath - The directory path to organize.
+ * @param options - Options for organizing (by extensions or names).
+ */
+async function organizeFiles(
+  dirPath: string,
+  options: { ext: boolean; name: boolean }
+): Promise<void> {
+  const fileGroups = options.name
+    ? await getFileNameGroups(dirPath)
+    : await getFileTypes(dirPath);
+
   const summary: { folder: string; created: boolean; filesAdded: number }[] =
     [];
+  let totalFilesMoved = 0;
 
-  for (const [ext, filePaths] of Object.entries(fileTypes)) {
-    const folderName = FILE_TYPE_MAP[ext] || `others-${ext.replace(".", "")}`;
+  for (const [key, filePaths] of Object.entries(fileGroups)) {
+    const folderName = options.ext ? key.replace(".", "") : key;
     const folderPath = path.join(dirPath, folderName);
     let folderCreated = false;
 
@@ -86,41 +115,54 @@ async function organizeFiles(dirPath: string): Promise<void> {
       filesAdded++;
     }
 
+    totalFilesMoved += filesAdded;
     summary.push({ folder: folderName, created: folderCreated, filesAdded });
   }
 
   // Print summary
   console.log(`Organization Summary for '${dirPath}':`);
-  for (const { folder, created, filesAdded } of summary) {
-    console.log(`- Folder: ${folder}`);
-    console.log(`  - ${created ? "Created" : "Already existed"}`);
-    console.log(`  - Files added: ${filesAdded}`);
+  if (totalFilesMoved === 0) {
+    console.log("- No files were organized.");
+  } else {
+    for (const { folder, created, filesAdded } of summary) {
+      console.log(`- Folder: ${folder}`);
+      console.log(`  - ${created ? "Created" : "Already existed"}`);
+      console.log(`  - Files added: ${filesAdded}`);
+    }
   }
 }
 
 /**
  * CLI Entry Point
  */
-(async () => {
-  const dirPath = process.argv[2];
+program
+  .name("dir-tidy")
+  .version(packageJson.version)
+  .description("Organize files in a directory into categorized folders.")
+  .argument("[directory]", "The directory to organize", ".")
+  .option("--ext", "Use file extensions as folder names")
+  .option("--name", "Group files by starting names")
+  .action(
+    async (directory: string, options: { ext: boolean; name: boolean }) => {
+      try {
+        if (options.ext && options.name) {
+          console.error("Options --ext and --name are mutually exclusive.");
+          process.exit(1);
+        }
+        const absDirPath = path.resolve(directory);
+        const dirStat = await stat(absDirPath);
 
-  if (!dirPath) {
-    console.error("Please provide a directory path.");
-    process.exit(1);
-  }
+        if (!dirStat.isDirectory()) {
+          console.error(`The provided path is not a directory: ${absDirPath}`);
+          process.exit(1);
+        }
 
-  try {
-    const absDirPath = path.resolve(dirPath);
-    const dirStat = await stat(absDirPath);
-
-    if (!dirStat.isDirectory()) {
-      console.error(`The provided path is not a directory: ${absDirPath}`);
-      process.exit(1);
+        await organizeFiles(absDirPath, options);
+      } catch (error: any) {
+        console.error("An error occurred:", error.message);
+        process.exit(1);
+      }
     }
+  );
 
-    await organizeFiles(absDirPath);
-  } catch (error: any) {
-    console.error("An error occurred:", error.message);
-    process.exit(1);
-  }
-})();
+program.parse(process.argv);
