@@ -1,9 +1,11 @@
+import Footer from "./components/footer";
 import LandingPage from "./components/landing-page";
 
 function App() {
   return (
-    <div className="py-40">
+    <div>
       <LandingPage />
+      <Footer />
     </div>
   );
 }

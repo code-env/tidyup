@@ -5,7 +5,7 @@ import { Button } from "./ui/button";
 
 const LandingPage = () => {
   return (
-    <div className="min-h-screen w-full">
+    <div className="min-h-screen w-full pt-40">
       <div className="max-w-xl  w-full mx-auto flex flex-col items-center gap-4">
         <div className="flex flex-col items-center gap-2">
           <img
