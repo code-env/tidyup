@@ -20,7 +20,11 @@ const LandingPage = () => {
         </p>
         <div className="flex items-center gap-4">
           <Button asChild className="min-w-40">
-            <a href="https://npm.com/tidyup" target="_blank" rel="noreferrer">
+            <a
+              href="https://www.npmjs.com/package/tidyup"
+              target="_blank"
+              rel="noreferrer"
+            >
               Npm Package
             </a>
           </Button>

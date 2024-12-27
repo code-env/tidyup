@@ -1,91 +1,126 @@
-# dir-tidy
+# Tidyup
 
-**dir-tidy** is a simple command-line tool that organizes files in a specified directory into categorized subfolders based on their file types. It ensures your directories stay clean and organized, saving you the hassle of manually sorting files.
+**tidyup** is a powerful command-line tool that organizes files in a specified directory into categorized subfolders. It offers multiple options to customize the organization process, ensuring your directories remain clean and structured.
+
+---
 
 ## Features
 
-- Automatically categorizes files into subfolders (e.g., images, videos, documents).
-- Handles file naming conflicts by appending a counter to duplicate filenames.
-- Supports a variety of file types with customizable mappings.
+- Organizes files into subfolders by:
+  - **File Extensions** (e.g., `mp4`, `pdf`).
+  - **Starting Names** (e.g., `project-a`, `report`).
+  - **Creation Dates** (e.g., `2024-12-24`).
+- Handles file naming conflicts automatically.
 - Provides a detailed summary of the organization process.
+- Compatible with Windows, macOS, and Linux.
 
 ---
 
 ## Installation
 
-First, make sure you have Node.js installed on your machine.
+First, ensure you have Node.js installed on your system.
 
-1. Install `dir-tidy` globally from npm:
+1. Install `tidyup` globally via npm:
 
    ```bash
-   npm install -g dir-tidy
+   npm install -g tidyup
    ```
 
 2. Verify the installation:
 
    ```bash
-   dir-tidy --version
+   tidyup --version
    ```
 
 ---
 
 ## Usage
 
-Run the `dir-tidy` command, providing the path to the directory you want to organize.
+Run the `tidyup` command, specifying the directory to organize and the desired options.
 
 ```bash
-dir-tidy <directory-path>
+tidyup [directory] [options]
 ```
 
-### Example
+If no directory is specified, the current directory (`.`) is used by default.
+
+### Options
+
+- `--ext`: Organize files into folders based on their **file extensions**.
+- `--name`: Group files by their **starting names**.
+- `--date`: Group files by their **creation dates**.
+
+> **Note**: These options cannot be used together. For example, you cannot use `--ext` and `--name` simultaneously.
+
+---
+
+## Examples
+
+### Organize by File Extensions
 
 ```bash
-dir-tidy /home/user/Downloads
+tidyup /path/to/directory --ext
 ```
 
-### Output
-
-The tool organizes files in the specified directory into subfolders such as `images-png`, `videos-mp4`, `documents-pdf`, etc., and provides a summary like this:
+Example output:
 
 ```
-Organization Summary for '/home/user/Downloads':
-- Folder: images-png
+Organization Summary for '/path/to/directory':
+- Folder: mp4
   - Created
   - Files added: 3
-- Folder: videos-mp4
+- Folder: pdf
   - Already existed
-  - Files added: 2
-- Folder: others-zip
-  - Created
   - Files added: 1
 ```
 
----
-
-## Supported File Types
-
-| File Extension | Folder Name     |
-| -------------- | --------------- |
-| `.png`         | `images-png`    |
-| `.jpg`         | `images-jpg`    |
-| `.jpeg`        | `images-jpeg`   |
-| `.mp4`         | `videos-mp4`    |
-| `.avi`         | `videos-avi`    |
-| `.pdf`         | `documents-pdf` |
-
-Other file types are moved to a folder named `others-<extension>`.
-
----
-
-## Error Handling
-
-If the directory path provided is invalid or not a directory, `dir-tidy` will show an error:
+### Group Files by Starting Names
 
 ```bash
-The provided path is not a directory: /invalid/path
+tidyup /path/to/directory --name
 ```
 
-Make sure the directory exists and is accessible.
+Example output:
+
+```
+Organization Summary for '/path/to/directory':
+- Folder: project-a
+  - Created
+  - Files added: 4
+- Folder: report
+  - Already existed
+  - Files added: 2
+```
+
+### Organize by Creation Dates
+
+```bash
+tidyup /path/to/directory --date
+```
+
+Example output:
+
+```
+Organization Summary for '/path/to/directory':
+- Folder: 2024-12-23
+  - Created
+  - Files added: 2
+- Folder: 2024-12-24
+  - Already existed
+  - Files added: 3
+```
+
+### Invalid Option Combination
+
+```bash
+tidyup /path/to/directory --ext --name
+```
+
+Error output:
+
+```
+The --ext, --name, and --date options cannot be used together.
+```
 
 ---
 
@@ -97,33 +132,39 @@ Make sure the directory exists and is accessible.
    git clone https://github.com/code-env/tidyup.git
    ```
 
-2. Install dependencies:
+2. Navigate to the project directory:
+
+   ```bash
+   cd tidyup
+   ```
+
+3. Install dependencies:
 
    ```bash
    npm install
    ```
 
-3. Build the project:
+4. Build the project:
 
    ```bash
    npm run build
    ```
 
-4. Test locally:
+5. Test locally:
 
    ```bash
-   node ./dist/index.js <directory-path>
+   node ./dist/index.js <directory> [options]
    ```
 
 ---
 
 ## Contributing
 
-Contributions are welcome! If you'd like to add new features or improve the project:
+We welcome contributions! To contribute:
 
-- Fork the repository
-- Create a new branch for your changes
-- Submit a pull request
+1. Fork the repository.
+2. Create a new branch for your feature or bug fix.
+3. Submit a pull request with your changes.
 
 ---
 
@@ -135,6 +176,10 @@ This project is licensed under the **ISC License**. See the LICENSE file for mor
 
 ## Author
 
-**dir-tidy** is developed and maintained by [bossadizenith](https://github.com/code-env).
+**tidyup** is developed and maintained by [Emmanuel](https://github.com/code-env).
 
-Happy organizing! 🚀
+---
+
+Happy organizing! 🎉
+
+Let me know if this aligns with your requirements or needs further customization.
