@@ -13,7 +13,7 @@
     "test": "jest"
   },
   "bin": {
-    "dir-tidy": "./dist/index.js"
+    "tidyup": "./dist/index.js"
   },
   "keywords": [
     "directory-organizer",
@@ -35,7 +35,7 @@
   "bugs": {
     "url": "https://github.com/code-env/tidyup/issues"
   },
-  "homepage": "https://github.com/code-env/tidyup#readme",
+  "homepage": "https://tidyup.bossadizenith.me",
   "license": "ISC",
   "engines": {
     "node": ">=16.0.0"
