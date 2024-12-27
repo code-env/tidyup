@@ -3,7 +3,7 @@ import LandingPage from "./components/landing-page";
 
 function App() {
   return (
-    <div>
+    <div className="px-4">
       <LandingPage />
       <Footer />
     </div>
