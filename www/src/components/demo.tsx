@@ -23,7 +23,10 @@ export function Demo() {
             whileInView={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
           >
-            $ tidyup /home/[username]/Downloads
+            <span className="font-bold text-green-500">
+              <span className="font-bold text-2xl">→</span> Downloads
+              <span className="text-primary ml-2">tidyup .</span>
+            </span>
           </motion.div>
           <motion.div
             initial={{ opacity: 0 }}

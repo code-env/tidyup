@@ -4,7 +4,7 @@ const Footer = () => {
       <p className="flex gap-1 items-center">
         <img
           src="https://avatars.githubusercontent.com/u/135658967"
-          alt="twitter"
+          alt="Bossadi Zenith"
           className="size-10 rounded-full"
         />
         by{" "}

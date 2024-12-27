@@ -62,7 +62,7 @@
 @layer base {
   * {
     @apply border-border;
-    font-family: "Hanken Grotesk", sans-serif;
+    /* font-family: "Hanken Grotesk", sans-serif; */
   }
   body {
     @apply bg-background text-foreground;

@@ -5,7 +5,7 @@ import { Button } from "./ui/button";
 
 const LandingPage = () => {
   return (
-    <div className="h-full w-full pt-40 ">
+    <div className="h-full w-full pt-40">
       <div className="max-w-xl  w-full mx-auto flex flex-col items-center gap-4">
         <div className="flex flex-col items-center gap-2">
           <img
@@ -70,7 +70,7 @@ const Installation = () => {
         <Button
           onClick={onCopy}
           size="icon"
-          className="absolute right-2 top-0 bottom-0 my-auto"
+          className="absolute right-1 top-0 bottom-0 my-auto"
           variant="outline"
         >
           <MotionConfig transition={{ duration: 0.15 }}>
