@@ -176,7 +176,7 @@ This project is licensed under the **ISC License**. See the LICENSE file for mor
 
 ## Author
 
-**tidyup** is developed and maintained by [Emmanuel](https://github.com/code-env).
+**tidyup** is developed and maintained by [Bossadi Zenith](https://github.com/code-env).
 
 ---
 
