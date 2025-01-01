@@ -49,8 +49,9 @@ If no directory is specified, the current directory (`.`) is used by default.
 - `--ext`: Organize files into folders based on their **file extensions**.
 - `--name`: Group files by their **starting names**.
 - `--date`: Group files by their **creation dates**.
+- `--ignore-dotfiles`: Ignore dotfiles when organizing.
 
-> **Note**: These options cannot be used together. For example, you cannot use `--ext` and `--name` simultaneously.
+> **Note**: Some of these options cannot be used together. For example, you cannot use `--ext` and `--name` simultaneously, but you can use `--ignore-dotfiles` with any one other option.
 
 ---
 
@@ -108,6 +109,23 @@ Organization Summary for '/path/to/directory':
 - Folder: 2024-12-24
   - Already existed
   - Files added: 3
+```
+
+### Organize by Name and Ignore Dotfiles
+```bash
+tidyup /path/to/directory --name --ignore-dotfiles
+```
+
+Example output:
+
+```
+Organization Summary for '/path/to/directory':
+- Folder: project-a
+  - Created
+  - Files added: 4
+- Folder: report
+  - Already existed
+  - Files added: 2
 ```
 
 ### Invalid Option Combination

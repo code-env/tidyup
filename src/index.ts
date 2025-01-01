@@ -10,6 +10,12 @@ const mkdir = promisify(fs.mkdir);
 const rename = promisify(fs.rename);
 const stat = promisify(fs.stat);
 
+type Options = {
+  ext: boolean;
+  name: boolean;
+  ignoreDotfiles: boolean;
+};
+
 // Define mappings for file types to folder names
 const FILE_TYPE_MAP: Record<string, string> = {
   ".png": "images-png",
@@ -28,10 +34,11 @@ program
   .description("Organize files in a directory based on their extensions")
   .option("--ext", "Use the file extetions as folder names")
   .option("--name", "Group files by starting name")
-  .action(async (inputDir: string, option: { ext: boolean; name: boolean }) => {
+  .option("--ignore-dotfiles", "Ignore dotfiles")
+  .action(async (inputDir: string, options: Options) => {
     const dirPath = path.resolve(inputDir);
     try {
-      if (option.ext && option.name) {
+      if (options.ext && options.name) {
         console.error("Only one of --ext or --name can be used at a time");
         process.exit(1);
       }
@@ -42,7 +49,7 @@ program
         process.exit(1);
       }
 
-      await organizeFiles(dirPath, option);
+      await organizeFiles(dirPath, options);
     } catch (error: any) {
       console.error("An error occurred:", error.message);
       process.exit(1);
@@ -52,17 +59,31 @@ program
 program.parse(process.argv);
 
 /**
+ * Check if a file is a dotfile (starts with a dot)
+ * @param fileName - The name of the file to check
+ * @returns True if the file is a dotfile, false otherwise
+ */
+function isDotFile(fileName: string): boolean {
+  return fileName.startsWith(".");
+}
+
+/**
  * Get all file types present in a directory.
  * @param dirPath - The path to the directory.
  * @returns A record where keys are file extensions and values are file paths.
  */
 async function getFileTypes(
-  dirPath: string
+  dirPath: string,
+  options: Options
 ): Promise<Record<string, string[]>> {
   const files = await readdir(dirPath);
   const fileTypes: Record<string, string[]> = {};
 
   for (const file of files) {
+    if (options.ignoreDotfiles && isDotFile(file)) {
+      continue;
+    }
+
     const filePath = path.join(dirPath, file);
     const fileStat = await stat(filePath);
 
@@ -84,12 +105,17 @@ async function getFileTypes(
  * @returns A record where keys are base names and values are file paths.
  */
 async function getFileNameGroups(
-  dirPath: string
+  dirPath: string,
+  options: Options
 ): Promise<Record<string, string[]>> {
   const files = await readdir(dirPath);
   const nameGroups: Record<string, string[]> = {};
 
   for (const file of files) {
+    if (options.ignoreDotfiles && isDotFile(file)) {
+      continue;
+    }
+
     const filePath = path.join(dirPath, file);
     const fileStat = await stat(filePath);
 
@@ -112,14 +138,14 @@ async function getFileNameGroups(
 
 async function organizeFiles(
   dirPath: string,
-  options: { ext: boolean; name: boolean }
+  options: Options
 ): Promise<void> {
   let fileTypes: Record<string, string[]>;
 
   if (options.name) {
-    fileTypes = await getFileNameGroups(dirPath);
+    fileTypes = await getFileNameGroups(dirPath, options);
   } else {
-    fileTypes = await getFileTypes(dirPath);
+    fileTypes = await getFileTypes(dirPath, options);
   }
 
   const summary: { folder: string; created: boolean; filesAdded: number }[] =
