@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 import { Command } from "commander";
 import fs from "fs";
 import path from "path";
@@ -32,9 +33,9 @@ program
   .version(version)
   .argument("[directory]", "Directory to tidy up", ".") // Default to current directory
   .description("Organize files in a directory based on their extensions")
-  .option("--ext", "Use the file extetions as folder names")
+  .option("--ext", "Use the file extensions as folder names")
   .option("--name", "Group files by starting name")
-  .option("--ignore-dotfiles", "Ignore dotfiles")
+  .option("--ignore-dotfiles", "Ignore dotfiles", true)
   .action(async (inputDir: string, options: Options) => {
     const dirPath = path.resolve(inputDir);
     try {
@@ -59,9 +60,9 @@ program
 program.parse(process.argv);
 
 /**
- * Check if a file is a dotfile (starts with a dot)
- * @param fileName - The name of the file to check
- * @returns True if the file is a dotfile, false otherwise
+ * Check if a file is a dotfile (starts with a dot).
+ * @param fileName - The name of the file to check.
+ * @returns True if the file is a dotfile, false otherwise.
  */
 function isDotFile(fileName: string): boolean {
   return fileName.startsWith(".");
@@ -70,6 +71,7 @@ function isDotFile(fileName: string): boolean {
 /**
  * Get all file types present in a directory.
  * @param dirPath - The path to the directory.
+ * @param options - User-specified options.
  * @returns A record where keys are file extensions and values are file paths.
  */
 async function getFileTypes(
@@ -81,7 +83,7 @@ async function getFileTypes(
 
   for (const file of files) {
     if (options.ignoreDotfiles && isDotFile(file)) {
-      continue;
+      continue; // Skip hidden files if ignoreDotfiles is true
     }
 
     const filePath = path.join(dirPath, file);
@@ -102,6 +104,7 @@ async function getFileTypes(
 /**
  * Get all file name groups based on starting names.
  * @param dirPath - The path to the directory.
+ * @param options - User-specified options.
  * @returns A record where keys are base names and values are file paths.
  */
 async function getFileNameGroups(
@@ -113,7 +116,7 @@ async function getFileNameGroups(
 
   for (const file of files) {
     if (options.ignoreDotfiles && isDotFile(file)) {
-      continue;
+      continue; // Skip hidden files if ignoreDotfiles is true
     }
 
     const filePath = path.join(dirPath, file);
@@ -132,14 +135,11 @@ async function getFileNameGroups(
 }
 
 /**
- * Organize files into folders based on their extensions and provide detailed output.
+ * Organize files into folders based on their extensions or names.
  * @param dirPath - The directory path to organize.
+ * @param options - User-specified options.
  */
-
-async function organizeFiles(
-  dirPath: string,
-  options: Options
-): Promise<void> {
+async function organizeFiles(dirPath: string, options: Options): Promise<void> {
   let fileTypes: Record<string, string[]>;
 
   if (options.name) {
