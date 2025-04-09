@@ -5,16 +5,16 @@ import fs from "fs";
 import path from "path";
 import { promisify } from "util";
 import { version } from "../package.json";
+import Operation from "./fileOperation";
 
 const readdir = promisify(fs.readdir);
-const mkdir = promisify(fs.mkdir);
-const rename = promisify(fs.rename);
 const stat = promisify(fs.stat);
 
 type Options = {
   ext: boolean;
   name: boolean;
   ignoreDotfiles: boolean;
+  dryrun: boolean;
 };
 
 // Define mappings for file types to folder names
@@ -28,17 +28,28 @@ const FILE_TYPE_MAP: Record<string, string> = {
 };
 
 const program = new Command();
-
+let fileOperation: Operation;
 program
   .version(version)
   .argument("[directory]", "Directory to tidy up", ".") // Default to current directory
   .description("Organize files in a directory based on their extensions")
   .option("--ext", "Use the file extensions as folder names")
   .option("--name", "Group files by starting name")
+  .option("--dryrun", "Show what would be done without making changes", false)
   .option("--ignore-dotfiles", "Ignore dotfiles", true)
   .action(async (inputDir: string, options: Options) => {
     const dirPath = path.resolve(inputDir);
+    console.log(`Organizing files in directory: ${dirPath}`);
     try {
+      if (options.dryrun) {
+        console.log("Running in dry run mode. No changes will be made.");
+        fileOperation = new Operation(true);
+      }
+      else {
+        console.log("Running in normal mode. Changes will be made.");
+        fileOperation = new Operation(false);
+      }
+
       if (options.ext && options.name) {
         console.error("Only one of --ext or --name can be used at a time");
         process.exit(1);
@@ -141,7 +152,6 @@ async function getFileNameGroups(
  */
 async function organizeFiles(dirPath: string, options: Options): Promise<void> {
   let fileTypes: Record<string, string[]>;
-
   if (options.name) {
     fileTypes = await getFileNameGroups(dirPath, options);
   } else {
@@ -161,10 +171,9 @@ async function organizeFiles(dirPath: string, options: Options): Promise<void> {
     let folderCreated = false;
 
     if (!fs.existsSync(folderPath)) {
-      await mkdir(folderPath);
+      await fileOperation.mkdir(folderPath);
       folderCreated = true;
     }
-
     let filesAdded = 0;
     for (const filePath of filePaths) {
       const fileName = path.basename(filePath);
@@ -180,7 +189,7 @@ async function organizeFiles(dirPath: string, options: Options): Promise<void> {
           counter++;
         }
       }
-      await rename(filePath, newFilePath);
+      await fileOperation.rename(filePath, newFilePath);
       filesAdded++;
     }
     summary.push({ folder: folderName, created: folderCreated, filesAdded });
@@ -190,9 +199,23 @@ async function organizeFiles(dirPath: string, options: Options): Promise<void> {
   const lastDir = lastPath[lastPath.length - 1];
 
   console.log(`Organization Summary for '${lastDir}':`);
-  for (const { folder, created, filesAdded } of summary) {
-    console.log(`- Folder: ${folder}`);
-    console.log(`  - ${created ? "Created" : "Already existed"}`);
-    console.log(`  - Files added: ${filesAdded}`);
+
+  if (options.dryrun) {
+    console.log("Dry Run Output:");
+    const dryRunFilePath = path.join("dryrun.json");
+    const data = fileOperation.getSummary();
+    fs.writeFileSync(dryRunFilePath, JSON.stringify(data, null, 2), "utf-8");
+    for (const file in data){
+      console.log(`- ${file} -> ${data[file]}`);
+
+    }
   }
+  else{
+    for (const { folder, created, filesAdded } of summary) {
+      console.log(`- Folder: ${folder}`);
+      console.log(`  - ${created ? "Created" : "Already existed"}`);
+      console.log(`  - Files added: ${filesAdded}`);
+    }
+  }
+
 }
